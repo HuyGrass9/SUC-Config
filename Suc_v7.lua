@@ -20,7 +20,7 @@ t_spawn(function()
 end)
 local TargetUI = pcall(gethui) and gethui() or S.CG
 pcall(function()
-    for _, v in ipairs(TargetUI:GetChildren()) do if v.Name:match("Maychemxeocan") then v:Destroy() end end
+    for _, v in ipairs(TargetUI:GetChildren()) do if v.Name:match("QuantumV7") then v:Destroy() end end
 end)
 local function Create(cls, props, parent)
     local ins = Instance.new(cls)
@@ -28,13 +28,13 @@ local function Create(cls, props, parent)
     if parent then ins.Parent = parent end
     return ins
 end
-local UI = Create("ScreenGui", {Name = "QuantumV717", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "MayChemXeoCan", ResetOnSpawn = false}, TargetUI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(12, 12, 12), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
 Create("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5, Transparency = 0.2}, Main)
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(20, 20, 20), BorderSizePixel = 0}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.17 ANTI SUS", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.18 TACTICAL RETREAT", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Header)
 local T_Wep = Create("TextLabel", {Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 32), BackgroundTransparency = 1, Text = "WEAPON: SYNC...", TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBold, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Main)
 local LogBox = Create("ScrollingFrame", {Size = UDim2.new(1, -20, 0, 85), Position = UDim2.new(0, 10, 0, 60), BackgroundTransparency = 1, ScrollBarThickness = 1, CanvasSize = UDim2.new(), ScrollBarImageColor3 = Color3.fromRGB(0, 170, 255)}, Main)
 Create("UIListLayout", {Padding = UDim.new(0, 3), SortOrder = Enum.SortOrder.LayoutOrder}, LogBox)
@@ -73,8 +73,33 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V7.17 Loaded. Enable Anti Sus Module.", Color3.fromRGB(0, 170, 255))
+        Log("V7.18 Loaded. Tactical Retreat Ready.", Color3.fromRGB(0, 170, 255))
     end)
+end)
+local Blacklist = {}
+t_spawn(function()
+    local wasDead = false
+    while t_wait(0.5) do
+        pcall(function()
+            local char = LP.Character
+            local hum = char and char:FindFirstChild("Humanoid")
+            if hum and hum.Health <= 0 then
+                if not wasDead then
+                    wasDead = true
+                    Log("WE DIED! BLACKLISTING ALL PLAYERS...", Color3.fromRGB(255, 50, 50))
+                    for _, v in ipairs(S.P:GetPlayers()) do
+                        if v ~= LP and v.Name ~= "ZBaltQne" then
+                            Blacklist[v.Name] = tick()
+                            pcall(function() if v.Character and v.Character:FindFirstChild("Humanoid") then v.Character.Humanoid:Destroy() end end)
+                        end
+                    end
+                    getgenv().CurrentTarget = nil
+                end
+            elseif hum and hum.Health > 0 then
+                wasDead = false
+            end
+        end)
+    end
 end)
 t_spawn(function()
     while t_wait(2) do
@@ -101,6 +126,10 @@ local function GetTarget()
     local cfg = getgenv().Setting.Targeting_Advanced or {}
     for _, v in ipairs(S.P:GetPlayers()) do
         if v.Name == "ZBaltQne" then continue end
+        if Blacklist[v.Name] and tick() - Blacklist[v.Name] < 300 then
+            pcall(function() if v.Character and v.Character:FindFirstChild("Humanoid") then v.Character.Humanoid:Destroy() end end)
+            continue
+        end
         if v ~= LP and v.Team ~= LP.Team and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
             if cfg.Ignore_Friends and LP:IsFriendsWith(v.UserId) then continue end
             if cfg.Ignore_ForceField and v.Character:FindFirstChildOfClass("ForceField") then continue end
