@@ -29,15 +29,15 @@ local function Create(cls, props, parent)
     if parent then ins.Parent = parent end
     return ins
 end
-local UI = Create("ScreenGui", {Name = "QuantumV82", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV83", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(12, 12, 12), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
 Create("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5, Transparency = 0.2}, Main)
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(20, 20, 20), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -65, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V8.2 PERSISTENT BLK", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
-local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 40, 0, 20), Position = UDim2.new(1, -48, 0, 4), BackgroundColor3 = Color3.fromRGB(30, 30, 30), Text = "BLK", TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.GothamBold, TextSize = 11, ZIndex = 2}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V8.3", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(30, 30, 30), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(180, 180, 180), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
 local isBlack = false
 pcall(function()
@@ -46,12 +46,12 @@ pcall(function()
     end
 end)
 BlackBG.Visible = isBlack
-BtnBlack.TextColor3 = isBlack and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(200, 200, 200)
+BtnBlack.TextColor3 = isBlack and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 180)
 pcall(function() S.RS:Set3dRenderingEnabled(not isBlack) end)
 BtnBlack.MouseButton1Click:Connect(function()
     isBlack = not isBlack
     BlackBG.Visible = isBlack
-    BtnBlack.TextColor3 = isBlack and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(200, 200, 200)
+    BtnBlack.TextColor3 = isBlack and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 180)
     pcall(function() S.RS:Set3dRenderingEnabled(not isBlack) end)
     pcall(function() if writefile then writefile("Suc_Blackout.txt", tostring(isBlack)) end end)
 end)
@@ -87,7 +87,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V8.2 Loaded. Persistent Blackout.", Color3.fromRGB(0, 170, 255))
+        Log("V8.3 Loaded. UI Refined.", Color3.fromRGB(0, 170, 255))
     end)
 end)
 local Blacklist = {}
