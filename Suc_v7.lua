@@ -34,7 +34,7 @@ Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
 Create("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5, Transparency = 0.2}, Main)
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(20, 20, 20), BorderSizePixel = 0}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.19 TRAP ESC", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.20 EMERGENCY HOP", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Header)
 local T_Wep = Create("TextLabel", {Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 32), BackgroundTransparency = 1, Text = "WEAPON: SYNC...", TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBold, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Main)
 local LogBox = Create("ScrollingFrame", {Size = UDim2.new(1, -20, 0, 85), Position = UDim2.new(0, 10, 0, 60), BackgroundTransparency = 1, ScrollBarThickness = 1, CanvasSize = UDim2.new(), ScrollBarImageColor3 = Color3.fromRGB(0, 170, 255)}, Main)
 Create("UIListLayout", {Padding = UDim.new(0, 3), SortOrder = Enum.SortOrder.LayoutOrder}, LogBox)
@@ -73,7 +73,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V7.19 Loaded. Trap Zone Sensor Active.", Color3.fromRGB(0, 170, 255))
+        Log("V7.20 Loaded. Emergency Hop Active.", Color3.fromRGB(0, 170, 255))
     end)
 end)
 local Blacklist = {}
@@ -86,14 +86,21 @@ t_spawn(function()
             if hum and hum.Health <= 0 then
                 if not wasDead then
                     wasDead = true
-                    Log("WE DIED! BLACKLISTING ALL PLAYERS...", Color3.fromRGB(255, 50, 50))
-                    for _, v in ipairs(S.P:GetPlayers()) do
-                        if v ~= LP and v.Name ~= "ZBaltQne" then
-                            Blacklist[v.Name] = tick()
-                            pcall(function() if v.Character and v.Character:FindFirstChild("Humanoid") then v.Character.Humanoid:Destroy() end end)
+                    Log("WE DIED! FORCING EMERGENCY HOP...", Color3.fromRGB(255, 50, 50))
+                    T_Hop.Text = "EMERGENCY..."
+                    getgenv().CurrentTarget = nil
+                    local req = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
+                    if req then
+                        local d = S.HTTP:JSONDecode(req)
+                        if d and d.data then
+                            for _, v in ipairs(d.data) do
+                                if type(v) == "table" and v.playing and v.maxPlayers and v.playing < v.maxPlayers and v.id ~= game.JobId then
+                                    S.TS:TeleportToPlaceInstance(game.PlaceId, v.id, LP)
+                                    t_wait(1)
+                                end
+                            end
                         end
                     end
-                    getgenv().CurrentTarget = nil
                 end
             elseif hum and hum.Health > 0 then
                 wasDead = false
