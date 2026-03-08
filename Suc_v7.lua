@@ -33,15 +33,14 @@ local function Create(cls, props, parent)
     return ins
 end
 
--- UI TỐI GIẢN
-local UI = Create("ScreenGui", {Name = "QuantumV76", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV78", ResetOnSpawn = false}, TargetUI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(10, 10, 15), BackgroundTransparency = 0.15, Active = true, Draggable = true, ClipsDescendants = true}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 8)}, Main)
 local Glow = Create("UIStroke", {Thickness = 2, Transparency = 0.1}, Main)
 
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 30), BackgroundColor3 = Color3.fromRGB(15, 15, 22), BorderSizePixel = 0}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 8)}, Header)
-local Title = Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.6 STABLE", TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBlack, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left}, Header)
+local Title = Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.8 PORTAL ESCAPE", TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBlack, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left}, Header)
 local UIGradient = Create("UIGradient", {Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 0, 255))}}, Title)
 
 local T_Wep = Create("TextLabel", {Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 35), BackgroundTransparency = 1, Text = "WEAPON: SYNCING...", TextColor3 = Color3.fromRGB(0, 255, 200), Font = Enum.Font.GothamBold, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, Main)
@@ -97,7 +96,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V7.6 Loaded. Fixed Stuttering Issue.", Color3.fromRGB(0, 255, 150))
+        Log("V7.8 Loaded. Portal Escape Active.", Color3.fromRGB(0, 255, 150))
     end)
 end)
 
@@ -132,6 +131,54 @@ t_spawn(function()
     end
 end)
 
+t_spawn(function()
+    local stuckTimer = 0
+    while t_wait(1) do
+        pcall(function()
+            if not getgenv().CurrentTarget and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                stuckTimer = stuckTimer + 1
+                if stuckTimer >= 6 then
+                    Log("STUCK DETECTED! FINDING PORTAL...", Color3.fromRGB(255, 255, 0))
+                    local escaped = false
+                    local myHRP = LP.Character.HumanoidRootPart
+                    
+                    if S.W:FindFirstChild("Map") and S.W.Map:FindFirstChild("Portals") then
+                        for _, portal in ipairs(S.W.Map.Portals:GetChildren()) do
+                            if portal:IsA("BasePart") then
+                                myHRP.CFrame = portal.CFrame * cf_new(0, 0, 10)
+                                escaped = true
+                                break
+                            end
+                        end
+                    end
+                    
+                    if not escaped and S.W:FindFirstChild("_WorldOrigin") and S.W._WorldOrigin:FindFirstChild("PlayerSpawns") then
+                        local teamSpawns = S.W._WorldOrigin.PlayerSpawns:FindFirstChild(tostring(LP.Team)) or S.W._WorldOrigin.PlayerSpawns:FindFirstChild("Pirates")
+                        if teamSpawns then
+                            for _, spawnPt in ipairs(teamSpawns:GetChildren()) do
+                                if spawnPt:IsA("BasePart") then
+                                    myHRP.CFrame = spawnPt.CFrame + v3_new(0, 10, 0)
+                                    escaped = true
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    
+                    if not escaped then
+                        myHRP.CFrame = cf_new(0, 50, 0) 
+                    end
+                    
+                    stuckTimer = 0
+                    Log("ESCAPED TO MAINLAND PORTAL!", Color3.fromRGB(0, 255, 100))
+                end
+            else
+                stuckTimer = 0
+            end
+        end)
+    end
+end)
+
 local function GetWeaponByToolTip(tip)
     if not LP.Character then return nil end
     for _, v in ipairs(LP.Backpack:GetChildren()) do
@@ -143,7 +190,6 @@ local function GetWeaponByToolTip(tip)
     return nil
 end
 
--- THUẬT TOÁN ĐÈ VŨ KHÍ 
 t_spawn(function()
     while t_wait(0.05) do
         pcall(function()
@@ -183,7 +229,6 @@ t_spawn(function()
     end
 end)
 
--- THUẬT TOÁN ĐÓN LÕNG HITBOX (Không di chuyển LocalPlayer nữa)
 S.RS.Heartbeat:Connect(function()
     pcall(function()
         local t = getgenv().CurrentTarget
@@ -204,7 +249,6 @@ S.RS.Heartbeat:Connect(function()
     end)
 end)
 
--- ANTI AFK
 t_spawn(function()
     local tJ, keys = tick(), {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D}
     while t_wait(0.2) do
@@ -227,7 +271,6 @@ t_spawn(function()
     end
 end)
 
--- HOP SERVER
 t_spawn(function()
     t_wait(600)
     pcall(function()
