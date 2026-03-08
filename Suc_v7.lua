@@ -28,13 +28,13 @@ local function Create(cls, props, parent)
     if parent then ins.Parent = parent end
     return ins
 end
-local UI = Create("ScreenGui", {Name = "QuantumV713", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV714", ResetOnSpawn = false}, TargetUI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(12, 12, 12), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
 Create("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5, Transparency = 0.2}, Main)
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(20, 20, 20), BorderSizePixel = 0}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.13 DIMENSION", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.14 SAFEZONE", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, Header)
 local T_Wep = Create("TextLabel", {Size = UDim2.new(0.35, 0, 0, 25), Position = UDim2.new(0, 10, 0, 32), BackgroundTransparency = 1, Text = "WEAPON: SYNC", TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBold, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Main)
 local T_Timeout = Create("TextLabel", {Size = UDim2.new(0.65, -20, 0, 25), Position = UDim2.new(0.35, 0, 0, 32), BackgroundTransparency = 1, Text = "T/O: --", TextColor3 = Color3.fromRGB(255, 80, 80), Font = Enum.Font.GothamBold, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Right}, Main)
 local LogBox = Create("ScrollingFrame", {Size = UDim2.new(1, -20, 0, 85), Position = UDim2.new(0, 10, 0, 60), BackgroundTransparency = 1, ScrollBarThickness = 1, CanvasSize = UDim2.new(), ScrollBarImageColor3 = Color3.fromRGB(0, 170, 255)}, Main)
@@ -73,7 +73,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V7.13 Loaded. Dimensional Portal Esc.", Color3.fromRGB(0, 170, 255))
+        Log("V7.14 Loaded. Custom Safezone.", Color3.fromRGB(0, 170, 255))
     end)
 end)
 local Blacklist = {}
@@ -113,12 +113,12 @@ t_spawn(function()
                 if t.Name ~= cTargName then
                     cTargName = t.Name
                     tStart = tick()
-                    T_Timeout.Text = string.upper(t.Name) .. " | T/O: 120s"
+                    T_Timeout.Text = "T/O: 120s"
                 else
                     local elapsed = tick() - tStart
                     local timeLeft = m_floor(120 - elapsed)
                     if timeLeft < 0 then timeLeft = 0 end
-                    T_Timeout.Text = string.upper(t.Name) .. " | T/O: " .. timeLeft .. "s"
+                    T_Timeout.Text = "T/O: " .. timeLeft .. "s"
                     if elapsed >= 120 then
                         Blacklist[t.Name] = tick()
                         pcall(function() t.Humanoid:Destroy() end)
@@ -142,28 +142,10 @@ t_spawn(function()
             if not getgenv().CurrentTarget and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
                 stuckTimer = stuckTimer + 1
                 if stuckTimer >= 6 then
-                    Log("DIMENSION STUCK! TOUCHING PORTAL...", Color3.fromRGB(255, 255, 0))
-                    local myHRP = LP.Character.HumanoidRootPart
-                    local closestPortal, minD = nil, m_huge
-                    if S.W:FindFirstChild("Map") and S.W.Map:FindFirstChild("Portals") then
-                        for _, p in ipairs(S.W.Map.Portals:GetChildren()) do
-                            if p:IsA("BasePart") then
-                                local dist = (p.Position - myHRP.Position).Magnitude
-                                if dist < minD then
-                                    minD = dist
-                                    closestPortal = p
-                                end
-                            end
-                        end
-                    end
-                    if closestPortal then
-                        myHRP.CFrame = closestPortal.CFrame
-                        stuckTimer = -5
-                        Log("PORTAL TOUCHED! WAITING...", Color3.fromRGB(0, 255, 100))
-                    else
-                        myHRP.CFrame = cf_new(0, 50, 0)
-                        stuckTimer = 0
-                    end
+                    Log("STUCK! TELEPORTING TO SAFEZONE...", Color3.fromRGB(255, 255, 0))
+                    LP.Character.HumanoidRootPart.CFrame = cf_new(2284.80, 15.34, 911.49)
+                    stuckTimer = 0
+                    Log("ESCAPED TO SAFEZONE!", Color3.fromRGB(0, 255, 100))
                 end
             else
                 stuckTimer = 0
