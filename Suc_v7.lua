@@ -13,7 +13,8 @@ local S = {
     L = game:GetService("Lighting"),
     ST = game:GetService("Stats"),
     GS = game:GetService("GuiService"),
-    TS = game:GetService("TeleportService")
+    TS = game:GetService("TeleportService"),
+    HTTP = game:GetService("HttpService")
 }
 local LP = S.P.LocalPlayer
 
@@ -52,7 +53,7 @@ CreateNode("UICorner", {CornerRadius = UDim.new(0, 6)}, Core.FpsBox)
 CreateNode("UICorner", {CornerRadius = UDim.new(0, 4)}, Core.MainBox)
 
 local T_Fps = CreateNode("TextLabel", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "FPS: --", TextColor3 = Color3.fromRGB(0, 255, 100), Font = Enum.Font.GothamBold, TextSize = 14}, Core.FpsBox)
-CreateNode("TextLabel", {Size = UDim2.new(1, 0, 0, 25), Position = UDim2.new(0, 5, 0, 0), BackgroundTransparency = 1, Text = "> MayChemXeoCan_Core_V18.5", TextColor3 = Color3.fromRGB(0, 255, 100), Font = Enum.Font.Code, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left}, Core.MainBox)
+CreateNode("TextLabel", {Size = UDim2.new(1, 0, 0, 25), Position = UDim2.new(0, 5, 0, 0), BackgroundTransparency = 1, Text = "> MayChemXeoCan_Core_V7.1", TextColor3 = Color3.fromRGB(0, 255, 100), Font = Enum.Font.Code, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left}, Core.MainBox)
 
 local LogScroll = CreateNode("ScrollingFrame", {Size = UDim2.new(1, -10, 0.55, 0), Position = UDim2.new(0, 5, 0, 25), BackgroundTransparency = 1, ScrollBarThickness = 2, ScrollBarImageColor3 = Color3.fromRGB(0, 255, 100), AutomaticCanvasSize = Enum.AutomaticSize.Y, CanvasSize = UDim2.new()}, Core.MainBox)
 CreateNode("UIListLayout", {Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder}, LogScroll)
@@ -214,5 +215,23 @@ t_spawn(function()
     t_wait(15)
     pcall(function()
         if Core.MainBox then Core.MainBox.Visible = false end
+    end)
+end)
+
+t_spawn(function()
+    t_wait(600)
+    pcall(function()
+        local req = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
+        if req then
+            local data = S.HTTP:JSONDecode(req)
+            if data and data.data then
+                for _, v in ipairs(data.data) do
+                    if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
+                        S.TS:TeleportToPlaceInstance(game.PlaceId, v.id, LP)
+                        t_wait(1)
+                    end
+                end
+            end
+        end
     end)
 end)
