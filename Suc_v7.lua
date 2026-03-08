@@ -28,13 +28,13 @@ local function Create(cls, props, parent)
     if parent then ins.Parent = parent end
     return ins
 end
-local UI = Create("ScreenGui", {Name = "MayChemXeoCan", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV722", ResetOnSpawn = false}, TargetUI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(12, 12, 12), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
 Create("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5, Transparency = 0.2}, Main)
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(20, 20, 20), BorderSizePixel = 0}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.20 EMERGENCY HOP", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.22 SAFEZONE SNAP", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Header)
 local T_Wep = Create("TextLabel", {Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 32), BackgroundTransparency = 1, Text = "WEAPON: SYNC...", TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBold, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Main)
 local LogBox = Create("ScrollingFrame", {Size = UDim2.new(1, -20, 0, 85), Position = UDim2.new(0, 10, 0, 60), BackgroundTransparency = 1, ScrollBarThickness = 1, CanvasSize = UDim2.new(), ScrollBarImageColor3 = Color3.fromRGB(0, 170, 255)}, Main)
 Create("UIListLayout", {Padding = UDim.new(0, 3), SortOrder = Enum.SortOrder.LayoutOrder}, LogBox)
@@ -73,7 +73,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V7.20 Loaded. Emergency Hop Active.", Color3.fromRGB(0, 170, 255))
+        Log("V7.22 Loaded. Direct SafeZone Snap.", Color3.fromRGB(0, 170, 255))
     end)
 end)
 local Blacklist = {}
@@ -115,11 +115,16 @@ t_spawn(function()
             local myPos = LP.Character.HumanoidRootPart.Position
             for _, v in ipairs(S.P:GetPlayers()) do
                 if v.Name == "ZBaltQne" then continue end
-                if v ~= LP and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
-                    local dist = (v.Character.HumanoidRootPart.Position - myPos).Magnitude
-                    if dist > 15000 then
+                if v ~= LP and v.Character and v.Character:FindFirstChild("Humanoid") then
+                    if v.Character:FindFirstChildOfClass("ForceField") then
                         v.Character.Humanoid:Destroy()
-                        Log("SNAPPED: " .. v.Name .. " (OUT OF BOUNDS)", Color3.fromRGB(255, 50, 50))
+                        Log("SNAPPED: " .. v.Name .. " (SAFEZONE)", Color3.fromRGB(255, 100, 0))
+                    elseif v.Character:FindFirstChild("HumanoidRootPart") then
+                        local dist = (v.Character.HumanoidRootPart.Position - myPos).Magnitude
+                        if dist > 15000 then
+                            v.Character.Humanoid:Destroy()
+                            Log("SNAPPED: " .. v.Name .. " (OUT OF BOUNDS)", Color3.fromRGB(255, 50, 50))
+                        end
                     end
                 end
             end
@@ -154,7 +159,7 @@ local function GetTarget()
         end
         if v ~= LP and v.Team ~= LP.Team and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
             if cfg.Ignore_Friends and LP:IsFriendsWith(v.UserId) then continue end
-            if cfg.Ignore_ForceField and v.Character:FindFirstChildOfClass("ForceField") then continue end
+            if v.Character:FindFirstChildOfClass("ForceField") then continue end
             local e_hrp = v.Character:FindFirstChild("HumanoidRootPart")
             if e_hrp then
                 local d = (e_hrp.Position - pos).Magnitude
