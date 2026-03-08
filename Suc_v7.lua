@@ -28,15 +28,14 @@ local function Create(cls, props, parent)
     if parent then ins.Parent = parent end
     return ins
 end
-local UI = Create("ScreenGui", {Name = "QuantumV714", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "MayChemXeoCan", ResetOnSpawn = false}, TargetUI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(12, 12, 12), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
 Create("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5, Transparency = 0.2}, Main)
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(20, 20, 20), BorderSizePixel = 0}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.14 SAFEZONE", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, Header)
-local T_Wep = Create("TextLabel", {Size = UDim2.new(0.35, 0, 0, 25), Position = UDim2.new(0, 10, 0, 32), BackgroundTransparency = 1, Text = "WEAPON: SYNC", TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBold, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Main)
-local T_Timeout = Create("TextLabel", {Size = UDim2.new(0.65, -20, 0, 25), Position = UDim2.new(0.35, 0, 0, 32), BackgroundTransparency = 1, Text = "T/O: --", TextColor3 = Color3.fromRGB(255, 80, 80), Font = Enum.Font.GothamBold, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Right}, Main)
+Create("TextLabel", {Size = UDim2.new(1, -15, 1, 0), Position = UDim2.new(0, 15, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V7.16 FIX HOP", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, Header)
+local T_Wep = Create("TextLabel", {Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 32), BackgroundTransparency = 1, Text = "WEAPON: SYNC...", TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBold, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left}, Main)
 local LogBox = Create("ScrollingFrame", {Size = UDim2.new(1, -20, 0, 85), Position = UDim2.new(0, 10, 0, 60), BackgroundTransparency = 1, ScrollBarThickness = 1, CanvasSize = UDim2.new(), ScrollBarImageColor3 = Color3.fromRGB(0, 170, 255)}, Main)
 Create("UIListLayout", {Padding = UDim.new(0, 3), SortOrder = Enum.SortOrder.LayoutOrder}, LogBox)
 local Foot = Create("Frame", {Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 1, -28), BackgroundTransparency = 1}, Main)
@@ -51,19 +50,22 @@ local function Log(txt, col)
         LogBox.CanvasPosition = Vector2.new(0, 99999)
     end)
 end
-local Engine = {FC = 0, HopTime = 600}
+local Engine = {FC = 0}
 S.RS.RenderStepped:Connect(function() Engine.FC = Engine.FC + 1 end)
+
 t_spawn(function()
     while t_wait(1) do
         pcall(function()
             T_FPS.Text = "FPS: " .. Engine.FC
             Engine.FC = 0
-            T_Ping.Text = "PING: " .. m_floor((LP:GetNetworkPing() or 0) * 1000)
-            Engine.HopTime = Engine.HopTime - 1
-            if Engine.HopTime >= 0 then T_Hop.Text = "HOP: " .. Engine.HopTime .. "s" end
+        end)
+        pcall(function()
+            local p = LP:GetNetworkPing()
+            if p then T_Ping.Text = "PING: " .. m_floor(p * 1000) else T_Ping.Text = "PING: N/A" end
         end)
     end
 end)
+
 t_spawn(function()
     pcall(function()
         settings().Rendering.QualityLevel = 1
@@ -73,20 +75,33 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V7.14 Loaded. Custom Safezone.", Color3.fromRGB(0, 170, 255))
+        Log("V7.16 Loaded. Fix Hop Timer.", Color3.fromRGB(0, 170, 255))
     end)
 end)
-local Blacklist = {}
+
+t_spawn(function()
+    while t_wait(2) do
+        pcall(function()
+            if not LP.Character or not LP.Character:FindFirstChild("HumanoidRootPart") then return end
+            local myPos = LP.Character.HumanoidRootPart.Position
+            for _, v in ipairs(S.P:GetPlayers()) do
+                if v ~= LP and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
+                    local dist = (v.Character.HumanoidRootPart.Position - myPos).Magnitude
+                    if dist > 15000 then
+                        v.Character.Humanoid:Destroy()
+                        Log("SNAPPED: " .. v.Name .. " (OUT OF BOUNDS)", Color3.fromRGB(255, 50, 50))
+                    end
+                end
+            end
+        end)
+    end
+end)
 local function GetTarget()
     if not LP.Character or not LP.Character:FindFirstChild("HumanoidRootPart") then return nil end
     local pos = LP.Character.HumanoidRootPart.Position
     local best, minH, maxD = nil, m_huge, 15000
     local cfg = getgenv().Setting.Targeting_Advanced or {}
     for _, v in ipairs(S.P:GetPlayers()) do
-        if Blacklist[v.Name] and tick() - Blacklist[v.Name] < 300 then
-            pcall(function() if v.Character and v.Character:FindFirstChild("Humanoid") then v.Character.Humanoid:Destroy() end end)
-            continue
-        end
         if v ~= LP and v.Team ~= LP.Team and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
             if cfg.Ignore_Friends and LP:IsFriendsWith(v.UserId) then continue end
             if cfg.Ignore_ForceField and v.Character:FindFirstChildOfClass("ForceField") then continue end
@@ -103,35 +118,10 @@ local function GetTarget()
     end
     return best
 end
-local cTargName, tStart = nil, 0
 t_spawn(function()
     while t_wait(0.1) do
         pcall(function()
             getgenv().CurrentTarget = GetTarget()
-            local t = getgenv().CurrentTarget
-            if t and t:FindFirstChild("Humanoid") and t:FindFirstChild("HumanoidRootPart") then
-                if t.Name ~= cTargName then
-                    cTargName = t.Name
-                    tStart = tick()
-                    T_Timeout.Text = "T/O: 120s"
-                else
-                    local elapsed = tick() - tStart
-                    local timeLeft = m_floor(120 - elapsed)
-                    if timeLeft < 0 then timeLeft = 0 end
-                    T_Timeout.Text = "T/O: " .. timeLeft .. "s"
-                    if elapsed >= 120 then
-                        Blacklist[t.Name] = tick()
-                        pcall(function() t.Humanoid:Destroy() end)
-                        Log("TIMEOUT: TARGET ERASED!", Color3.fromRGB(255, 80, 80))
-                        getgenv().CurrentTarget = nil
-                        cTargName = nil
-                        T_Timeout.Text = "T/O: --"
-                    end
-                end
-            else
-                cTargName = nil
-                T_Timeout.Text = "T/O: --"
-            end
         end)
     end
 end)
@@ -234,21 +224,31 @@ t_spawn(function()
         end)
     end
 end)
+
 t_spawn(function()
-    t_wait(600)
-    pcall(function()
-        Log("HOPPING SERVER...", Color3.fromRGB(255, 50, 50))
-        local req = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
-        if req then
-            local d = S.HTTP:JSONDecode(req)
-            if d and d.data then
-                for _, v in ipairs(d.data) do
-                    if type(v) == "table" and v.playing and v.maxPlayers and v.playing < v.maxPlayers and v.id ~= game.JobId then
-                        S.TS:TeleportToPlaceInstance(game.PlaceId, v.id, LP)
-                        t_wait(1)
+    local hopTimeRemaining = 600
+    while t_wait(1) do
+        hopTimeRemaining = hopTimeRemaining - 1
+        pcall(function()
+            if hopTimeRemaining > 0 then
+                T_Hop.Text = "HOP: " .. hopTimeRemaining .. "s"
+            else
+                T_Hop.Text = "HOPPING..."
+                Log("HOPPING SERVER...", Color3.fromRGB(255, 50, 50))
+                local req = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
+                if req then
+                    local d = S.HTTP:JSONDecode(req)
+                    if d and d.data then
+                        for _, v in ipairs(d.data) do
+                            if type(v) == "table" and v.playing and v.maxPlayers and v.playing < v.maxPlayers and v.id ~= game.JobId then
+                                S.TS:TeleportToPlaceInstance(game.PlaceId, v.id, LP)
+                                t_wait(1)
+                            end
+                        end
                     end
                 end
+                hopTimeRemaining = 600 
             end
-        end
-    end)
+        end)
+    end
 end)
