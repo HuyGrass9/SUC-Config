@@ -28,7 +28,7 @@ local function Create(cls, props, parent)
     if parent then ins.Parent = parent end
     return ins
 end
-local UI = Create("ScreenGui", {Name = "MayChemXeoCan", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV718", ResetOnSpawn = false}, TargetUI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(12, 12, 12), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
 Create("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5, Transparency = 0.2}, Main)
