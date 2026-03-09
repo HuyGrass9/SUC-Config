@@ -31,7 +31,7 @@ local function Create(cls, props, parent)
     return ins
 end
 
-local UI = Create("ScreenGui", {Name = "QuantumV105", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV106", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(15, 15, 18), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
@@ -39,7 +39,7 @@ Create("UIStroke", {Color = Color3.fromRGB(255, 0, 85), Thickness = 1.5, Transpa
 
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(22, 22, 26), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.5 GHOST", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.6 FINAL GHOST", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 9, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
 
 local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(35, 35, 40), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
@@ -85,11 +85,14 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V10.5 GHOST Ready.", Color3.fromRGB(255, 0, 85))
+        Log("V10.6 FINAL GHOST Ready.", Color3.fromRGB(255, 0, 85))
     end)
 end)
 
 local Blacklist, bLabel = {}, nil
+getgenv().Retreating = false
+getgenv().LockedTarget = nil
+
 local function SyncBananaTarget()
     if bLabel and bLabel.Parent and bLabel.Text then
         local n = string.match(bLabel.Text, "Target %([%s]*([%w_]+)")
@@ -111,62 +114,77 @@ local function SmartEquipFruit()
     return nil
 end
 
-local isRetreating = false
-local lowHpCount = {}
-
 t_spawn(function()
-    local tmr, lck, last, tJ, keys = {}, {}, tick(), tick(), {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D}
+    local tmr, lowHpCount, last, tJ, keys = {}, {}, tick(), tick(), {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D}
     while t_wait(0.1) do
         local now, dt = tick(), tick() - last; last = now
         pcall(function()
-            getgenv().CurrentTarget = SyncBananaTarget()
-            local t = getgenv().CurrentTarget
-            
-            if t and t:FindFirstChild("Humanoid") and t.Humanoid.Health > 0 and t:FindFirstChild("HumanoidRootPart") and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            local t = SyncBananaTarget()
+            if t and t:FindFirstChild("HumanoidRootPart") and t:FindFirstChild("Humanoid") and t.Humanoid.Health > 0 and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
                 if Blacklist[t.Name] and tick() - Blacklist[t.Name] < 300 then
-                    getgenv().CurrentTarget = nil; return
+                    getgenv().LockedTarget = nil; return
                 end
                 
+                local hp = LP.Character:FindFirstChild("Humanoid") and LP.Character.Humanoid.Health or 0
+                if hp > 0 then
+                    if hp < 4000 then
+                        if not getgenv().Retreating then
+                            getgenv().Retreating = true
+                            lowHpCount[t.Name] = (lowHpCount[t.Name] or 0) + 1
+                            if lowHpCount[t.Name] >= 3 then
+                                Blacklist[t.Name] = tick()
+                                pcall(function() t.Humanoid:Destroy() end)
+                                Log("DANGER: 3 RETREATS! SKIPPED.", Color3.fromRGB(255, 100, 0))
+                                getgenv().LockedTarget, getgenv().Retreating = nil, false
+                                return
+                            end
+                        end
+                    elseif hp >= 7000 then
+                        getgenv().Retreating = false
+                    end
+                end
+
                 local d = (LP.Character.HumanoidRootPart.Position - t.HumanoidRootPart.Position).Magnitude
-                if d <= 200 and not isRetreating then lck[t.Name] = true end
-                
-                if isRetreating then
-                    T_Timeout.Text = "RETREATING..."
-                elseif lck[t.Name] then
+                if d <= 200 and not getgenv().Retreating then
+                    getgenv().LockedTarget = t
+                else
+                    getgenv().LockedTarget = nil
+                end
+
+                if getgenv().LockedTarget == t then
                     tmr[t.Name] = (tmr[t.Name] or 0) + dt
-                    local left = m_floor(45 - tmr[t.Name])
+                    local left = m_floor(25 - tmr[t.Name])
                     T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | T/O: " .. (left > 0 and left or 0) .. "s"
                     
-                    if tmr[t.Name] >= 45 then
+                    if tmr[t.Name] >= 25 then
                         Blacklist[t.Name] = tick()
                         pcall(function() t.Humanoid:Destroy() end)
-                        Log("TIMEOUT: TARGET ERASED!", Color3.fromRGB(255, 80, 80))
-                        getgenv().CurrentTarget, tmr[t.Name], lck[t.Name] = nil, nil, nil
+                        Log("TIMEOUT (25s): SKIPPED!", Color3.fromRGB(255, 80, 80))
+                        getgenv().LockedTarget, tmr[t.Name] = nil, nil
                         T_Timeout.Text = "T/O: STANDBY"
                     end
+                elseif getgenv().Retreating then
+                    T_Timeout.Text = "RETREATING..."
                 else
                     tmr[t.Name] = 0
                     T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | FLYING..."
                 end
             else
+                getgenv().LockedTarget = nil
                 T_Timeout.Text = "T/O: STANDBY"
             end
         end)
         
         pcall(function()
-            if LP.Character and LP.Character:FindFirstChild("Humanoid") and LP.Character.Humanoid.Health > 0 then
+            if getgenv().LockedTarget and LP.Character and LP.Character:FindFirstChild("Humanoid") and LP.Character.Humanoid.Health > 0 then
                 local eT = SmartEquipFruit()
-                if eT and eT.Parent ~= LP.Character then 
-                    LP.Character.Humanoid:EquipTool(eT) 
-                end
+                if eT and eT.Parent ~= LP.Character then LP.Character.Humanoid:EquipTool(eT) end
                 
                 if getgenv().Setting and getgenv().Setting.Misc and getgenv().Setting.Misc["Auto Jump"] and tick() - tJ >= 3.5 then
                     S.V:SendKeyEvent(true, Enum.KeyCode.Space, false, game); t_wait(0.05); S.V:SendKeyEvent(false, Enum.KeyCode.Space, false, game); tJ = tick()
                 end
-                if getgenv().CurrentTarget and not isRetreating then
-                    local k = keys[m_random(1, 4)]
-                    S.V:SendKeyEvent(true, k, false, game); t_wait(0.1); S.V:SendKeyEvent(false, k, false, game)
-                end
+                local k = keys[m_random(1, 4)]
+                S.V:SendKeyEvent(true, k, false, game); t_wait(0.1); S.V:SendKeyEvent(false, k, false, game)
             end
         end)
     end
@@ -181,10 +199,10 @@ t_spawn(function()
             if h and h.Health <= 0 then
                 if not dead then
                     dead, dC = true, dC + 1
-                    if dC < 2 then Log("WE DIED! 1ST WARNING.", Color3.fromRGB(255, 150, 0)); getgenv().CurrentTarget = nil
+                    if dC < 2 then Log("WE DIED! 1ST WARNING.", Color3.fromRGB(255, 150, 0)); getgenv().LockedTarget = nil
                     else
                         t_spawn(function()
-                            Log("DIED TWICE! HOPPING...", Color3.fromRGB(255, 50, 50)); T_Hop.Text = "EMERGENCY 2s"; getgenv().CurrentTarget = nil
+                            Log("DIED TWICE! HOPPING...", Color3.fromRGB(255, 50, 50)); T_Hop.Text = "EMERGENCY 2s"; getgenv().LockedTarget = nil
                             t_wait(1); T_Hop.Text = "EMERGENCY 1s"; t_wait(1); T_Hop.Text = "HOPPING NOW!"
                             local r = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
                             if r then
@@ -227,40 +245,27 @@ t_spawn(function()
                 end; ht = 600 
             end
         end)
+        pcall(function()
+            for _, v in ipairs(S.P:GetPlayers()) do
+                if v.Name == "ZBaltQne" then continue end
+                if v ~= LP and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
+                    if v.Character:FindFirstChildOfClass("ForceField") then
+                        v.Character.Humanoid:Destroy(); Log("SNAPPED: SAFEZONE", Color3.fromRGB(255, 100, 0))
+                    end
+                end
+            end
+        end)
     end
 end)
 
 S.RS.Heartbeat:Connect(function()
     pcall(function()
-        local t = getgenv().CurrentTarget
-        if not t or not t:FindFirstChild("HumanoidRootPart") or not t:FindFirstChild("Humanoid") or t.Humanoid.Health <= 0 then return end
-        
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") and LP.Character:FindFirstChild("Humanoid") then
-            local hp = LP.Character.Humanoid.Health
-            if hp > 0 then
-                if hp < 4000 then
-                    if not isRetreating then
-                        isRetreating = true
-                        lowHpCount[t.Name] = (lowHpCount[t.Name] or 0) + 1
-                        if lowHpCount[t.Name] >= 3 then
-                            Blacklist[t.Name] = tick()
-                            pcall(function() t.Humanoid:Destroy() end)
-                            Log("DANGER: TARGET TOO STRONG! SKIPPED.", Color3.fromRGB(255, 100, 0))
-                            getgenv().CurrentTarget = nil
-                            isRetreating = false
-                        end
-                    end
-                elseif hp >= 7000 then
-                    isRetreating = false
-                end
-                
-                if not isRetreating and getgenv().CurrentTarget == t then
-                    local hrp = LP.Character.HumanoidRootPart
-                    hrp.CFrame = t.HumanoidRootPart.CFrame * cf_new(0, 3, 3)
-                    hrp.AssemblyLinearVelocity = v3_new(0, 0, 0)
-                    hrp.AssemblyAngularVelocity = v3_new(0, 0, 0)
-                end
-            end
+        local t = getgenv().LockedTarget
+        if t and t:FindFirstChild("HumanoidRootPart") and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = LP.Character.HumanoidRootPart
+            hrp.CFrame = t.HumanoidRootPart.CFrame * cf_new(0, 3, 3)
+            hrp.AssemblyLinearVelocity = v3_new(0, 0, 0)
+            hrp.AssemblyAngularVelocity = v3_new(0, 0, 0)
         end
     end)
 end)
