@@ -8,14 +8,13 @@ local S = {
 }
 local LP = S.P.LocalPlayer
 local t_wait, t_spawn = task.wait, task.spawn
-local m_random, m_floor, m_huge, m_clamp = math.random, math.floor, math.huge, math.clamp
+local m_floor = math.floor
 local v3_new, cf_new = Vector3.new, CFrame.new
 
 t_spawn(function()
     pcall(function()
         S.GS.ErrorMessageChanged:Connect(function()
-            t_wait(2)
-            S.TS:TeleportToPlaceInstance(game.PlaceId, game.JobId, LP)
+            t_wait(2); S.TS:TeleportToPlaceInstance(game.PlaceId, game.JobId, LP)
         end)
     end)
 end)
@@ -32,15 +31,16 @@ local function Create(cls, props, parent)
     return ins
 end
 
-local UI = Create("ScreenGui", {Name = "Maychemxeocan", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV10", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(15, 15, 18), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
-Create("UIStroke", {Color = Color3.fromRGB(0, 255, 170), Thickness = 1.5, Transparency = 0.1}, Main)
+Create("UIStroke", {Color = Color3.fromRGB(255, 0, 85), Thickness = 1.5, Transparency = 0.1}, Main)
 
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(22, 22, 26), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V9.0 APEX", TextColor3 = Color3.fromRGB(0, 255, 170), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10 ABSOLUTE BYPASS", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+
 local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(35, 35, 40), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
 
@@ -49,20 +49,18 @@ pcall(function()
     if isfile and readfile and isfile("Suc_Blackout.txt") then isBlack = readfile("Suc_Blackout.txt") == "true" end
 end)
 BlackBG.Visible = isBlack
-BtnBlack.TextColor3 = isBlack and Color3.fromRGB(0, 255, 170) or Color3.fromRGB(200, 200, 200)
+BtnBlack.TextColor3 = isBlack and Color3.fromRGB(255, 0, 85) or Color3.fromRGB(200, 200, 200)
 pcall(function() S.RS:Set3dRenderingEnabled(not isBlack) end)
 
 BtnBlack.MouseButton1Click:Connect(function()
-    isBlack = not isBlack
-    BlackBG.Visible = isBlack
-    BtnBlack.TextColor3 = isBlack and Color3.fromRGB(0, 255, 170) or Color3.fromRGB(200, 200, 200)
+    isBlack = not isBlack; BlackBG.Visible = isBlack
+    BtnBlack.TextColor3 = isBlack and Color3.fromRGB(255, 0, 85) or Color3.fromRGB(200, 200, 200)
     pcall(function() S.RS:Set3dRenderingEnabled(not isBlack) end)
     pcall(function() if writefile then writefile("Suc_Blackout.txt", tostring(isBlack)) end end)
 end)
 
-local T_Wep = Create("TextLabel", {Size = UDim2.new(0.4, 0, 0, 25), Position = UDim2.new(0, 10, 0, 32), BackgroundTransparency = 1, Text = "WEAPON: SYNC", TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBold, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Main)
-local T_Timeout = Create("TextLabel", {Size = UDim2.new(0.6, -20, 0, 25), Position = UDim2.new(0.4, 0, 0, 32), BackgroundTransparency = 1, Text = "T/O: --", TextColor3 = Color3.fromRGB(255, 80, 80), Font = Enum.Font.GothamBold, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Right, ZIndex = 1}, Main)
-local LogBox = Create("ScrollingFrame", {Size = UDim2.new(1, -20, 0, 85), Position = UDim2.new(0, 10, 0, 60), BackgroundTransparency = 1, ScrollBarThickness = 1, CanvasSize = UDim2.new(), ScrollBarImageColor3 = Color3.fromRGB(0, 255, 170), ZIndex = 1}, Main)
+local T_Timeout = Create("TextLabel", {Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 0, 32), BackgroundTransparency = 1, Text = "T/O: STANDBY", TextColor3 = Color3.fromRGB(255, 80, 80), Font = Enum.Font.GothamBlack, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 1}, Main)
+local LogBox = Create("ScrollingFrame", {Size = UDim2.new(1, -20, 0, 85), Position = UDim2.new(0, 10, 0, 60), BackgroundTransparency = 1, ScrollBarThickness = 1, CanvasSize = UDim2.new(), ScrollBarImageColor3 = Color3.fromRGB(255, 0, 85), ZIndex = 1}, Main)
 Create("UIListLayout", {Padding = UDim.new(0, 3), SortOrder = Enum.SortOrder.LayoutOrder}, LogBox)
 local Foot = Create("Frame", {Size = UDim2.new(1, -20, 0, 25), Position = UDim2.new(0, 10, 1, -28), BackgroundTransparency = 1, ZIndex = 1}, Main)
 local T_Ping = Create("TextLabel", {Size = UDim2.new(0.33, 0, 1, 0), BackgroundTransparency = 1, Text = "PING: 0", TextColor3 = Color3.fromRGB(150, 150, 160), Font = Enum.Font.GothamBold, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Foot)
@@ -82,118 +80,71 @@ S.RS.RenderStepped:Connect(function() Engine.FC = Engine.FC + 1 end)
 
 t_spawn(function()
     pcall(function()
-        settings().Rendering.QualityLevel = 1
-        S.L.GlobalShadows, S.L.FogEnd = false, 9e9
+        settings().Rendering.QualityLevel = 1; S.L.GlobalShadows, S.L.FogEnd = false, 9e9
         for _, v in ipairs(S.L:GetDescendants()) do if v:IsA("PostEffect") then v.Enabled = false end end
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V9.0 APEX Loaded. Ultimate Logic.", Color3.fromRGB(0, 255, 170))
+        Log("V10.0 Bypass Teleport Active.", Color3.fromRGB(255, 0, 85))
     end)
 end)
 
 local Blacklist, bLabel = {}, nil
-local function GetBananaTarget()
+local function SyncBananaTarget()
     if bLabel and bLabel.Parent and bLabel.Text then
         local n = string.match(bLabel.Text, "Target %([%s]*([%w_]+)")
         if n then local p = S.P:FindFirstChild(n); return p and p.Character or nil end
         return nil
     end
-    for _, v in ipairs(S.CG:GetDescendants()) do
-        if v:IsA("TextLabel") and v.Text and string.find(v.Text, "Target %(") then bLabel = v; break end
-    end
+    for _, v in ipairs(S.CG:GetDescendants()) do if v:IsA("TextLabel") and v.Text and string.find(v.Text, "Target %(") then bLabel = v; break end end
     if not bLabel then
-         for _, v in ipairs(LP.PlayerGui:GetDescendants()) do
-            if v:IsA("TextLabel") and v.Text and string.find(v.Text, "Target %(") then bLabel = v; break end
-        end
+         for _, v in ipairs(LP.PlayerGui:GetDescendants()) do if v:IsA("TextLabel") and v.Text and string.find(v.Text, "Target %(") then bLabel = v; break end end
     end
     return nil
 end
 
-local function GetLogicTarget()
-    local bTarg = GetBananaTarget()
-    if bTarg then return bTarg end
-    if not LP.Character or not LP.Character:FindFirstChild("HumanoidRootPart") then return nil end
-    local pos = LP.Character.HumanoidRootPart.Position
-    local best, minH, maxD, cfg = nil, m_huge, 15000, getgenv().Setting.Targeting_Advanced or {}
-    for _, v in ipairs(S.P:GetPlayers()) do
-        if v.Name == "ZBaltQne" then continue end
-        if Blacklist[v.Name] and tick() - Blacklist[v.Name] < 300 then
-            pcall(function() if v.Character and v.Character:FindFirstChild("Humanoid") then v.Character.Humanoid:Destroy() end end)
-            continue
-        end
-        if v ~= LP and v.Team ~= LP.Team and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-            if cfg.Ignore_Friends and LP:IsFriendsWith(v.UserId) then continue end
-            if v.Character:FindFirstChildOfClass("ForceField") then continue end
-            local hrp = v.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                local d = (hrp.Position - pos).Magnitude
-                if d <= maxD then
-                    if cfg.Priority_Mode == "Lowest Health" then
-                        if v.Character.Humanoid.Health < minH then minH = v.Character.Humanoid.Health; best = v.Character end
-                    else maxD = d; best = v.Character end
-                end
-            end
-        end
-    end
-    return best
-end
-
-local function SmartEquip(tip)
+local function SmartEquipFruit()
     if not LP.Character then return nil end
+    local tip = "Blox Fruit"
     for _, v in ipairs(LP.Backpack:GetChildren()) do if v:IsA("Tool") and (v.ToolTip == tip or v.Name:match(tip)) then return v end end
     for _, v in ipairs(LP.Character:GetChildren()) do if v:IsA("Tool") and (v.ToolTip == tip or v.Name:match(tip)) then return v end end
     return nil
 end
 
 t_spawn(function()
-    local tmr, lck, last, tJ, keys = {}, {}, tick(), tick(), {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D}
+    local tmr, last = {}, tick()
     while t_wait(0.1) do
-        local now = tick()
-        local dt = now - last
-        last = now
+        local now, dt = tick(), tick() - last; last = now
         pcall(function()
-            getgenv().CurrentTarget = GetLogicTarget()
+            getgenv().CurrentTarget = SyncBananaTarget()
             local t = getgenv().CurrentTarget
+            
             if t and t:FindFirstChild("Humanoid") and t:FindFirstChild("HumanoidRootPart") and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-                local d = (LP.Character.HumanoidRootPart.Position - t.HumanoidRootPart.Position).Magnitude
-                if d <= 250 then lck[t.Name] = true end
-                if lck[t.Name] then
-                    tmr[t.Name] = (tmr[t.Name] or 0) + dt
-                    local left = m_floor(45 - tmr[t.Name])
-                    T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | T/O: " .. (left > 0 and left or 0) .. "s"
-                    if tmr[t.Name] >= 45 then
-                        Blacklist[t.Name] = tick()
-                        pcall(function() t.Humanoid:Destroy() end)
-                        Log("TIMEOUT: " .. string.sub(t.Name, 1, 10) .. " ERASED!", Color3.fromRGB(255, 80, 80))
-                        getgenv().CurrentTarget, tmr[t.Name], lck[t.Name] = nil, nil, nil
-                        T_Timeout.Text = "T/O: --"
-                    end
-                else
-                    tmr[t.Name] = 0
-                    T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | FLYING..."
+                if Blacklist[t.Name] and tick() - Blacklist[t.Name] < 300 then
+                    getgenv().CurrentTarget = nil; return
                 end
-            else T_Timeout.Text = "T/O: --" end
-        end)
-        pcall(function()
-            if not LP.Character then return end
-            local cTool = LP.Character:FindFirstChildOfClass("Tool")
-            T_Wep.Text = "WEAPON: " .. (cTool and string.upper(cTool.Name) or "NONE")
-            if getgenv().Setting and getgenv().CurrentTarget and LP.Character:FindFirstChild("Humanoid") then
-                local c, eT = getgenv().Setting["Method Click"], nil
-                if c["Click Sword"] then eT = SmartEquip("Sword")
-                elseif c["Click Melee"] then eT = SmartEquip("Melee")
-                elseif c["Click Fruit"] then eT = SmartEquip("Blox Fruit")
-                elseif c["Click Gun"] then eT = SmartEquip("Gun") end
-                if eT and eT.Parent ~= LP.Character then LP.Character.Humanoid:EquipTool(eT) end
+                
+                tmr[t.Name] = (tmr[t.Name] or 0) + dt
+                local left = m_floor(45 - tmr[t.Name])
+                T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | T/O: " .. (left > 0 and left or 0) .. "s"
+                
+                if tmr[t.Name] >= 45 then
+                    Blacklist[t.Name] = tick()
+                    pcall(function() t.Humanoid:Destroy() end)
+                    Log("TIMEOUT: TARGET ERASED!", Color3.fromRGB(255, 80, 80))
+                    getgenv().CurrentTarget, tmr[t.Name] = nil, nil
+                    T_Timeout.Text = "T/O: STANDBY"
+                end
+            else
+                T_Timeout.Text = "T/O: STANDBY"
             end
-            if LP.Character and LP.Character:FindFirstChild("Humanoid") and LP.Character.Humanoid.Health > 0 then
-                if getgenv().Setting and getgenv().Setting.Misc and getgenv().Setting.Misc["Auto Jump"] and tick() - tJ >= 3.5 then
-                    S.V:SendKeyEvent(true, Enum.KeyCode.Space, false, game); t_wait(0.05); S.V:SendKeyEvent(false, Enum.KeyCode.Space, false, game); tJ = tick()
-                end
-                if getgenv().CurrentTarget then
-                    local k = keys[m_random(1, 4)]
-                    S.V:SendKeyEvent(true, k, false, game); t_wait(0.1); S.V:SendKeyEvent(false, k, false, game)
+        end)
+        
+        pcall(function()
+            if LP.Character and LP.Character:FindFirstChild("Humanoid") then
+                local eT = SmartEquipFruit()
+                if eT and eT.Parent ~= LP.Character then 
+                    LP.Character.Humanoid:EquipTool(eT) 
                 end
             end
         end)
@@ -229,7 +180,7 @@ t_spawn(function()
                     end
                 end
             elseif h and h.Health > 0 then dead = false end
-            if (mp - tz).Magnitude <= 500 then Log("TRAP ESCAPED!", Color3.fromRGB(0, 255, 170)); LP.Character.HumanoidRootPart.CFrame = sz end
+            if (mp - tz).Magnitude <= 500 then Log("TRAP ESCAPED!", Color3.fromRGB(255, 0, 85)); LP.Character.HumanoidRootPart.CFrame = sz end
         end)
     end
 end)
@@ -263,9 +214,9 @@ t_spawn(function()
                 if v.Name == "ZBaltQne" then continue end
                 if v ~= LP and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
                     if v.Character:FindFirstChildOfClass("ForceField") then
-                        v.Character.Humanoid:Destroy(); Log("SNAPPED: " .. v.Name .. " (SAFEZONE)", Color3.fromRGB(255, 100, 0))
+                        v.Character.Humanoid:Destroy(); Log("SNAPPED: SAFEZONE", Color3.fromRGB(255, 100, 0))
                     elseif (v.Character.HumanoidRootPart.Position - mp).Magnitude > 15000 then
-                        v.Character.Humanoid:Destroy(); Log("SNAPPED: " .. v.Name .. " (OUT OF BOUNDS)", Color3.fromRGB(255, 50, 50))
+                        v.Character.Humanoid:Destroy(); Log("SNAPPED: OUT OF BOUNDS", Color3.fromRGB(255, 50, 50))
                     end
                 end
             end
@@ -277,15 +228,19 @@ S.RS.Heartbeat:Connect(function()
     pcall(function()
         local t = getgenv().CurrentTarget
         if not t or not t:FindFirstChild("HumanoidRootPart") then return end
-        local eH = t.HumanoidRootPart
-        local pT = (getgenv().Setting and getgenv().Setting["Aim Prediction"]) or 0.185
-        local eV = eH.AssemblyLinearVelocity
-        local dV = v3_new(m_clamp(eV.X, -120, 120), m_clamp(eV.Y, -80, 80), m_clamp(eV.Z, -120, 120))
-        local pP = eH.Position + (dV * pT)
-        if getgenv().Setting and getgenv().Setting.Hitbox and getgenv().Setting.Hitbox.Enabled then
-            local sz = getgenv().Setting.Hitbox.Size
-            eH.Size, eH.Transparency, eH.CanCollide = v3_new(sz, sz, sz), getgenv().Setting.Hitbox.Transparency, false
-            if dV.Magnitude > 1 then eH.CFrame = cf_new(pP) end
+        
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            -- Bypass Teleport liên tục (CFrame Lock)
+            LP.Character.HumanoidRootPart.CFrame = t.HumanoidRootPart.CFrame * CFrame.new(0, 2, 2)
+            LP.Character.HumanoidRootPart.Velocity = v3_new(0, 0, 0)
+            
+            -- Spam M1 thần tốc
+            local curTool = LP.Character:FindFirstChildOfClass("Tool")
+            if curTool then
+                curTool:Activate()
+                S.V:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+                S.V:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+            end
         end
     end)
 end)
