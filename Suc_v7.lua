@@ -31,7 +31,7 @@ local function Create(cls, props, parent)
     return ins
 end
 
-local UI = Create("ScreenGui", {Name = "QuantumV107", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV108", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(15, 15, 18), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
@@ -39,7 +39,7 @@ Create("UIStroke", {Color = Color3.fromRGB(255, 0, 85), Thickness = 1.5, Transpa
 
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(22, 22, 26), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.7 OMNI", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.8 VENGEANCE", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
 
 local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(35, 35, 40), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
@@ -85,13 +85,15 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V10.7 OMNI Ready. 300m Engage.", Color3.fromRGB(255, 0, 85))
+        Log("enable anti sus module", Color3.fromRGB(255, 0, 85))
     end)
 end)
 
 local Blacklist, bLabel = {}, nil
 getgenv().Retreating = false
 getgenv().LockedTarget = nil
+getgenv().RetreatTracker = getgenv().RetreatTracker or {}
+getgenv().LastTargetName = nil
 
 local function SyncBananaTarget()
     if bLabel and bLabel.Parent and bLabel.Text then
@@ -115,35 +117,44 @@ local function SmartEquipFruit()
 end
 
 t_spawn(function()
-    local tmr, lowHpCount, last, tJ, keys = {}, {}, tick(), tick(), {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D}
+    local tmr, last, tJ, keys = {}, tick(), tick(), {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D}
     while t_wait(0.1) do
         local now, dt = tick(), tick() - last; last = now
         pcall(function()
             local hp = LP.Character and LP.Character:FindFirstChild("Humanoid") and LP.Character.Humanoid.Health or 0
+            local t = SyncBananaTarget()
+            
+            if t then getgenv().LastTargetName = t.Name end
+            
             if hp >= 7000 and getgenv().Retreating then
                 getgenv().Retreating = false
             end
 
-            local t = SyncBananaTarget()
+            if hp > 0 and hp < 4000 and not getgenv().Retreating then
+                getgenv().Retreating = true
+                local eName = getgenv().LastTargetName
+                if eName then
+                    getgenv().RetreatTracker[eName] = (getgenv().RetreatTracker[eName] or 0) + 1
+                    Log("WARNING: RETREAT " .. getgenv().RetreatTracker[eName] .. "/3", Color3.fromRGB(255, 150, 0))
+                    
+                    if getgenv().RetreatTracker[eName] >= 3 then
+                        Blacklist[eName] = tick()
+                        local bGuy = S.P:FindFirstChild(eName)
+                        if bGuy and bGuy.Character and bGuy.Character:FindFirstChild("Humanoid") then
+                            pcall(function() bGuy.Character.Humanoid:Destroy() end)
+                        end
+                        Log("DANGER: 3 STRIKES! SKIPPED.", Color3.fromRGB(255, 50, 50))
+                        getgenv().LockedTarget = nil
+                        return
+                    end
+                end
+            end
+
             if t and t:FindFirstChild("HumanoidRootPart") and t:FindFirstChild("Humanoid") and t.Humanoid.Health > 0 and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
                 if Blacklist[t.Name] and tick() - Blacklist[t.Name] < 300 then
-                    getgenv().LockedTarget = nil; return
-                end
-                
-                if hp > 0 and hp < 4000 then
-                    if not getgenv().Retreating then
-                        getgenv().Retreating = true
-                        lowHpCount[t.Name] = (lowHpCount[t.Name] or 0) + 1
-                        Log("WARNING: RETREAT " .. lowHpCount[t.Name] .. "/3", Color3.fromRGB(255, 150, 0))
-                        
-                        if lowHpCount[t.Name] >= 3 then
-                            Blacklist[t.Name] = tick()
-                            pcall(function() t.Humanoid:Destroy() end)
-                            Log("DANGER: 3 STRIKES! SKIPPED.", Color3.fromRGB(255, 50, 50))
-                            getgenv().LockedTarget = nil
-                            return
-                        end
-                    end
+                    getgenv().LockedTarget = nil
+                    T_Timeout.Text = "T/O: STANDBY"
+                    return
                 end
 
                 local d = (LP.Character.HumanoidRootPart.Position - t.HumanoidRootPart.Position).Magnitude
@@ -156,7 +167,7 @@ t_spawn(function()
                 if getgenv().LockedTarget == t then
                     tmr[t.Name] = (tmr[t.Name] or 0) + dt
                     local left = m_floor(25 - tmr[t.Name])
-                    T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | T/O: " .. (left > 0 and left or 0) .. "s"
+                    T_Timeout.Text = "T/O: " .. (left > 0 and left or 0) .. "s"
                     
                     if tmr[t.Name] >= 25 then
                         Blacklist[t.Name] = tick()
@@ -169,11 +180,15 @@ t_spawn(function()
                     T_Timeout.Text = "RETREATING..."
                 else
                     tmr[t.Name] = 0
-                    T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | FLYING..."
+                    T_Timeout.Text = "FLYING..."
                 end
             else
                 getgenv().LockedTarget = nil
-                T_Timeout.Text = "T/O: STANDBY"
+                if getgenv().Retreating then
+                    T_Timeout.Text = "RETREATING..."
+                else
+                    T_Timeout.Text = "T/O: STANDBY"
+                end
             end
         end)
         
