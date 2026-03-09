@@ -29,14 +29,14 @@ local function Create(cls, props, parent)
     if parent then ins.Parent = parent end
     return ins
 end
-local UI = Create("ScreenGui", {Name = "QuantumV85", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "MayChemXeoCan", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(12, 12, 12), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
 Create("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5, Transparency = 0.2}, Main)
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(20, 20, 20), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V8.5 COMBO FIX", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V8.6 DELAY HOP", TextColor3 = Color3.fromRGB(0, 170, 255), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
 local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(30, 30, 30), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(180, 180, 180), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
 local isBlack = false
@@ -87,7 +87,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V8.5 Loaded. Combo Limits Removed.", Color3.fromRGB(0, 170, 255))
+        Log("V8.6 Loaded. Delayed Auto-Hop Active.", Color3.fromRGB(0, 170, 255))
     end)
 end)
 local Blacklist = {}
@@ -104,21 +104,27 @@ t_spawn(function()
             if hum and hum.Health <= 0 then
                 if not wasDead then
                     wasDead = true
-                    Log("WE DIED! FORCING EMERGENCY HOP...", Color3.fromRGB(255, 50, 50))
-                    T_Hop.Text = "EMERGENCY..."
-                    getgenv().CurrentTarget = nil
-                    local req = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
-                    if req then
-                        local d = S.HTTP:JSONDecode(req)
-                        if d and d.data then
-                            for _, v in ipairs(d.data) do
-                                if type(v) == "table" and v.playing and v.maxPlayers and v.playing < v.maxPlayers and v.id ~= game.JobId then
-                                    S.TS:TeleportToPlaceInstance(game.PlaceId, v.id, LP)
-                                    t_wait(1)
+                    t_spawn(function()
+                        Log("WE DIED! HOPPING IN 2 SECONDS...", Color3.fromRGB(255, 50, 50))
+                        T_Hop.Text = "EMERGENCY 2s"
+                        getgenv().CurrentTarget = nil
+                        t_wait(1)
+                        T_Hop.Text = "EMERGENCY 1s"
+                        t_wait(1)
+                        T_Hop.Text = "HOPPING NOW!"
+                        local req = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
+                        if req then
+                            local d = S.HTTP:JSONDecode(req)
+                            if d and d.data then
+                                for _, v in ipairs(d.data) do
+                                    if type(v) == "table" and v.playing and v.maxPlayers and v.playing < v.maxPlayers and v.id ~= game.JobId then
+                                        S.TS:TeleportToPlaceInstance(game.PlaceId, v.id, LP)
+                                        t_wait(1)
+                                    end
                                 end
                             end
                         end
-                    end
+                    end)
                 end
             elseif hum and hum.Health > 0 then
                 wasDead = false
