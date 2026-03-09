@@ -31,7 +31,7 @@ local function Create(cls, props, parent)
     return ins
 end
 
-local UI = Create("ScreenGui", {Name = "QuantumV101", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV102", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(15, 15, 18), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
@@ -39,7 +39,7 @@ Create("UIStroke", {Color = Color3.fromRGB(255, 0, 85), Thickness = 1.5, Transpa
 
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(22, 22, 26), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.1 PHANTOM", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.2 ZEN", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
 
 local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(35, 35, 40), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
@@ -85,7 +85,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V10.1 PHANTOM Ready.", Color3.fromRGB(255, 0, 85))
+        Log("V10.2 ZEN Ready. Cleaned Logic.", Color3.fromRGB(255, 0, 85))
     end)
 end)
 
@@ -119,7 +119,7 @@ t_spawn(function()
             getgenv().CurrentTarget = SyncBananaTarget()
             local t = getgenv().CurrentTarget
             
-            if t and t:FindFirstChild("Humanoid") and t:FindFirstChild("HumanoidRootPart") and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            if t and t:FindFirstChild("Humanoid") and t.Humanoid.Health > 0 and t:FindFirstChild("HumanoidRootPart") and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
                 if Blacklist[t.Name] and tick() - Blacklist[t.Name] < 300 then
                     getgenv().CurrentTarget = nil; return
                 end
@@ -160,11 +160,11 @@ t_spawn(function()
 end)
 
 t_spawn(function()
-    local dead, dC, tz, sz = false, 0, v3_new(917.61, 125.25, 32842.07), cf_new(2284.80, 15.34, 911.49)
+    local dead, dC = false, 0
     while t_wait(0.5) do
         pcall(function()
             if not LP.Character or not LP.Character:FindFirstChild("HumanoidRootPart") then return end
-            local h, mp = LP.Character:FindFirstChild("Humanoid"), LP.Character.HumanoidRootPart.Position
+            local h = LP.Character:FindFirstChild("Humanoid")
             if h and h.Health <= 0 then
                 if not dead then
                     dead, dC = true, dC + 1
@@ -188,7 +188,6 @@ t_spawn(function()
                     end
                 end
             elseif h and h.Health > 0 then dead = false end
-            if (mp - tz).Magnitude <= 500 then Log("TRAP ESCAPED!", Color3.fromRGB(255, 0, 85)); LP.Character.HumanoidRootPart.CFrame = sz end
         end)
     end
 end)
@@ -216,15 +215,11 @@ t_spawn(function()
             end
         end)
         pcall(function()
-            if not LP.Character or not LP.Character:FindFirstChild("HumanoidRootPart") then return end
-            local mp = LP.Character.HumanoidRootPart.Position
             for _, v in ipairs(S.P:GetPlayers()) do
                 if v.Name == "ZBaltQne" then continue end
                 if v ~= LP and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
                     if v.Character:FindFirstChildOfClass("ForceField") then
                         v.Character.Humanoid:Destroy(); Log("SNAPPED: SAFEZONE", Color3.fromRGB(255, 100, 0))
-                    elseif (v.Character.HumanoidRootPart.Position - mp).Magnitude > 15000 then
-                        v.Character.Humanoid:Destroy(); Log("SNAPPED: OUT OF BOUNDS", Color3.fromRGB(255, 50, 50))
                     end
                 end
             end
@@ -235,10 +230,10 @@ end)
 S.RS.Heartbeat:Connect(function()
     pcall(function()
         local t = getgenv().CurrentTarget
-        if not t or not t:FindFirstChild("HumanoidRootPart") then return end
+        -- KHÓA AN TOÀN TUYỆT ĐỐI: Chỉ Teleport khi Target có thật và còn Sống
+        if not t or not t:FindFirstChild("HumanoidRootPart") or not t:FindFirstChild("Humanoid") or t.Humanoid.Health <= 0 then return end
         
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            -- Bypass Teleport liên tục (CFrame Lock) - Giữ khoảng cách 3 mét để tung chiêu mượt
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") and LP.Character:FindFirstChild("Humanoid") and LP.Character.Humanoid.Health > 0 then
             LP.Character.HumanoidRootPart.CFrame = t.HumanoidRootPart.CFrame * CFrame.new(0, 3, 3)
             LP.Character.HumanoidRootPart.Velocity = v3_new(0, 0, 0)
         end
