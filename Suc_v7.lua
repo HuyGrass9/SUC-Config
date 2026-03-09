@@ -31,7 +31,7 @@ local function Create(cls, props, parent)
     return ins
 end
 
-local UI = Create("ScreenGui", {Name = "QuantumV109", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumVOmni", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(15, 15, 18), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
@@ -39,7 +39,7 @@ Create("UIStroke", {Color = Color3.fromRGB(255, 0, 85), Thickness = 1.5, Transpa
 
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(22, 22, 26), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.9 DEATH DOME", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 9, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: OMNI MODULE", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
 
 local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(35, 35, 40), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
@@ -116,6 +116,20 @@ local function SmartEquipFruit()
     return nil
 end
 
+local function ExecuteHop()
+    pcall(function()
+        local r = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
+        local d = S.HTTP:JSONDecode(r)
+        if d and d.data then
+            local vld = {}
+            for _, v in ipairs(d.data) do
+                if v.playing and v.playing < v.maxPlayers and v.id ~= game.JobId then table.insert(vld, v.id) end
+            end
+            if #vld > 0 then S.TS:TeleportToPlaceInstance(game.PlaceId, vld[m_random(1, #vld)], LP) end
+        end
+    end)
+end
+
 t_spawn(function()
     local tmr, last, tJ, keys = {}, tick(), tick(), {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D}
     while t_wait(0.1) do
@@ -167,7 +181,7 @@ t_spawn(function()
                 if getgenv().LockedTarget == t then
                     tmr[t.Name] = (tmr[t.Name] or 0) + dt
                     local left = m_floor(25 - tmr[t.Name])
-                    T_Timeout.Text = "T/O: " .. (left > 0 and left or 0) .. "s"
+                    T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | T/O: " .. (left > 0 and left or 0) .. "s"
                     
                     if tmr[t.Name] >= 25 then
                         Blacklist[t.Name] = tick()
@@ -221,17 +235,7 @@ t_spawn(function()
                         t_spawn(function()
                             Log("DIED TWICE! HOPPING...", Color3.fromRGB(255, 50, 50)); T_Hop.Text = "EMERGENCY 2s"; getgenv().LockedTarget = nil
                             t_wait(1); T_Hop.Text = "EMERGENCY 1s"; t_wait(1); T_Hop.Text = "HOPPING NOW!"
-                            local r = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
-                            if r then
-                                local d = S.HTTP:JSONDecode(r)
-                                if d and d.data then
-                                    for _, v in ipairs(d.data) do
-                                        if type(v) == "table" and v.playing and v.maxPlayers and v.playing < v.maxPlayers and v.id ~= game.JobId then
-                                            S.TS:TeleportToPlaceInstance(game.PlaceId, v.id, LP); t_wait(1)
-                                        end
-                                    end
-                                end
-                            end
+                            while t_wait(3) do ExecuteHop() end
                         end)
                     end
                 end
@@ -246,23 +250,16 @@ t_spawn(function()
     while t_wait(1) do
         pcall(function() T_FPS.Text = "FPS: " .. Engine.FC; Engine.FC = 0 end)
         pcall(function() local p = LP:GetNetworkPing(); T_Ping.Text = p and ("PING: " .. m_floor(p * 1000)) or "PING: N/A" end)
-        ht = ht - 1
-        pcall(function()
-            if ht > 0 then T_Hop.Text = "HOP: " .. ht .. "s" else
-                T_Hop.Text = "HOPPING..."; Log("HOPPING SERVER...", Color3.fromRGB(255, 50, 50))
-                local r = game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Desc&limit=100")
-                if r then
-                    local d = S.HTTP:JSONDecode(r)
-                    if d and d.data then
-                        for _, v in ipairs(d.data) do
-                            if type(v) == "table" and v.playing and v.maxPlayers and v.playing < v.maxPlayers and v.id ~= game.JobId then
-                                S.TS:TeleportToPlaceInstance(game.PlaceId, v.id, LP); t_wait(1)
-                            end
-                        end
-                    end
-                end; ht = 600 
-            end
-        end)
+        
+        if ht > 0 then
+            ht = ht - 1
+            T_Hop.Text = "HOP: " .. ht .. "s"
+        else
+            T_Hop.Text = "HOPPING..."
+            if ht == 0 then Log("HOPPING SERVER...", Color3.fromRGB(255, 50, 50)); ht = -1 end
+            ExecuteHop()
+        end
+        
         pcall(function()
             for _, v in ipairs(S.P:GetPlayers()) do
                 if v.Name == "ZBaltQne" then continue end
