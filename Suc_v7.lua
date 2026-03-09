@@ -8,7 +8,7 @@ local S = {
 }
 local LP = S.P.LocalPlayer
 local t_wait, t_spawn = task.wait, task.spawn
-local m_random, m_floor = math.random, math.floor
+local m_random, m_floor, m_clamp = math.random, math.floor, math.clamp
 local v3_new, cf_new = Vector3.new, CFrame.new
 
 t_spawn(function()
@@ -280,7 +280,14 @@ S.RS.Heartbeat:Connect(function()
         local t = getgenv().LockedTarget
         if t and t:FindFirstChild("HumanoidRootPart") and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
             local hrp = LP.Character.HumanoidRootPart
-            hrp.CFrame = t.HumanoidRootPart.CFrame * cf_new(0, 3, 3)
+            local tHrp = t.HumanoidRootPart
+            local pT = (getgenv().Setting and getgenv().Setting["Aim Prediction"]) or 0.185
+            local v = tHrp.AssemblyLinearVelocity
+            local cV = v3_new(m_clamp(v.X, -150, 150), m_clamp(v.Y, -100, 100), m_clamp(v.Z, -150, 150))
+            local pP = tHrp.Position + (cV * pT)
+            local pCF = tHrp.CFrame - tHrp.Position + pP
+            
+            hrp.CFrame = pCF * cf_new(0, 3, 3)
             hrp.AssemblyLinearVelocity = v3_new(0, 0, 0)
             hrp.AssemblyAngularVelocity = v3_new(0, 0, 0)
         end
