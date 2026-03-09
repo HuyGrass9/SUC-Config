@@ -31,7 +31,7 @@ local function Create(cls, props, parent)
     return ins
 end
 
-local UI = Create("ScreenGui", {Name = "QuantumV106", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV107", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(15, 15, 18), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
@@ -39,7 +39,7 @@ Create("UIStroke", {Color = Color3.fromRGB(255, 0, 85), Thickness = 1.5, Transpa
 
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(22, 22, 26), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.6 FINAL GHOST", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 9, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.7 OMNI", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
 
 local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(35, 35, 40), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
@@ -85,7 +85,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V10.6 FINAL GHOST Ready.", Color3.fromRGB(255, 0, 85))
+        Log("V10.7 OMNI Ready. 300m Engage.", Color3.fromRGB(255, 0, 85))
     end)
 end)
 
@@ -119,33 +119,35 @@ t_spawn(function()
     while t_wait(0.1) do
         local now, dt = tick(), tick() - last; last = now
         pcall(function()
+            local hp = LP.Character and LP.Character:FindFirstChild("Humanoid") and LP.Character.Humanoid.Health or 0
+            if hp >= 7000 and getgenv().Retreating then
+                getgenv().Retreating = false
+            end
+
             local t = SyncBananaTarget()
             if t and t:FindFirstChild("HumanoidRootPart") and t:FindFirstChild("Humanoid") and t.Humanoid.Health > 0 and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
                 if Blacklist[t.Name] and tick() - Blacklist[t.Name] < 300 then
                     getgenv().LockedTarget = nil; return
                 end
                 
-                local hp = LP.Character:FindFirstChild("Humanoid") and LP.Character.Humanoid.Health or 0
-                if hp > 0 then
-                    if hp < 4000 then
-                        if not getgenv().Retreating then
-                            getgenv().Retreating = true
-                            lowHpCount[t.Name] = (lowHpCount[t.Name] or 0) + 1
-                            if lowHpCount[t.Name] >= 3 then
-                                Blacklist[t.Name] = tick()
-                                pcall(function() t.Humanoid:Destroy() end)
-                                Log("DANGER: 3 RETREATS! SKIPPED.", Color3.fromRGB(255, 100, 0))
-                                getgenv().LockedTarget, getgenv().Retreating = nil, false
-                                return
-                            end
+                if hp > 0 and hp < 4000 then
+                    if not getgenv().Retreating then
+                        getgenv().Retreating = true
+                        lowHpCount[t.Name] = (lowHpCount[t.Name] or 0) + 1
+                        Log("WARNING: RETREAT " .. lowHpCount[t.Name] .. "/3", Color3.fromRGB(255, 150, 0))
+                        
+                        if lowHpCount[t.Name] >= 3 then
+                            Blacklist[t.Name] = tick()
+                            pcall(function() t.Humanoid:Destroy() end)
+                            Log("DANGER: 3 STRIKES! SKIPPED.", Color3.fromRGB(255, 50, 50))
+                            getgenv().LockedTarget = nil
+                            return
                         end
-                    elseif hp >= 7000 then
-                        getgenv().Retreating = false
                     end
                 end
 
                 local d = (LP.Character.HumanoidRootPart.Position - t.HumanoidRootPart.Position).Magnitude
-                if d <= 200 and not getgenv().Retreating then
+                if d <= 300 and not getgenv().Retreating then
                     getgenv().LockedTarget = t
                 else
                     getgenv().LockedTarget = nil
