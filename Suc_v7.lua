@@ -29,14 +29,14 @@ local function Create(cls, props, parent)
     if parent then ins.Parent = parent end
     return ins
 end
-local UI = Create("ScreenGui", {Name = "QuantumV811", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "MayChemXeoCan", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(15, 15, 18), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
 Create("UIStroke", {Color = Color3.fromRGB(0, 255, 170), Thickness = 1.5, Transparency = 0.1}, Main)
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(22, 22, 26), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V8.11 TARGET UI", TextColor3 = Color3.fromRGB(0, 255, 170), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V8.13 DEATH MARK", TextColor3 = Color3.fromRGB(0, 255, 170), Font = Enum.Font.GothamBlack, TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
 local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(35, 35, 40), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
 local isBlack = false
@@ -80,7 +80,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V8.11 Loaded. Cleaned UI.", Color3.fromRGB(0, 255, 170))
+        Log("V8.13 Loaded. Death Mark Engaged.", Color3.fromRGB(0, 255, 170))
     end)
 end)
 local Blacklist = {}
@@ -141,6 +141,7 @@ local function GetWeaponByToolTip(tip)
 end
 t_spawn(function()
     local TOTimers = {}
+    local TOLocked = {}
     local lastTick = tick()
     local tJ, keys = tick(), {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D}
     while t_wait(0.1) do
@@ -150,18 +151,29 @@ t_spawn(function()
         pcall(function()
             getgenv().CurrentTarget = GetTarget()
             local t = getgenv().CurrentTarget
-            if t and t:FindFirstChild("Humanoid") and t:FindFirstChild("HumanoidRootPart") then
-                TOTimers[t.Name] = (TOTimers[t.Name] or 0) + dt
-                local timeLeft = m_floor(30 - TOTimers[t.Name])
-                if timeLeft < 0 then timeLeft = 0 end
-                T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | T/O: " .. timeLeft .. "s"
-                if TOTimers[t.Name] >= 30 then
-                    Blacklist[t.Name] = tick()
-                    pcall(function() t.Humanoid:Destroy() end)
-                    Log("TIMEOUT: " .. string.sub(t.Name, 1, 10) .. " ERASED!", Color3.fromRGB(255, 80, 80))
-                    getgenv().CurrentTarget = nil
-                    TOTimers[t.Name] = nil
-                    T_Timeout.Text = "T/O: --"
+            if t and t:FindFirstChild("Humanoid") and t:FindFirstChild("HumanoidRootPart") and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                local dist = (LP.Character.HumanoidRootPart.Position - t.HumanoidRootPart.Position).Magnitude
+                if dist <= 200 then
+                    TOLocked[t.Name] = true
+                end
+                
+                if TOLocked[t.Name] then
+                    TOTimers[t.Name] = (TOTimers[t.Name] or 0) + dt
+                    local timeLeft = m_floor(30 - TOTimers[t.Name])
+                    if timeLeft < 0 then timeLeft = 0 end
+                    T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | T/O: " .. timeLeft .. "s"
+                    if TOTimers[t.Name] >= 30 then
+                        Blacklist[t.Name] = tick()
+                        pcall(function() t.Humanoid:Destroy() end)
+                        Log("TIMEOUT: " .. string.sub(t.Name, 1, 10) .. " ERASED!", Color3.fromRGB(255, 80, 80))
+                        getgenv().CurrentTarget = nil
+                        TOTimers[t.Name] = nil
+                        TOLocked[t.Name] = nil
+                        T_Timeout.Text = "T/O: --"
+                    end
+                else
+                    TOTimers[t.Name] = 0
+                    T_Timeout.Text = string.upper(string.sub(t.Name, 1, 10)) .. " | FLYING..."
                 end
             else
                 T_Timeout.Text = "T/O: --"
