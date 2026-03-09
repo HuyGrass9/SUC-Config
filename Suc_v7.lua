@@ -31,7 +31,7 @@ local function Create(cls, props, parent)
     return ins
 end
 
-local UI = Create("ScreenGui", {Name = "QuantumV104", ResetOnSpawn = false}, TargetUI)
+local UI = Create("ScreenGui", {Name = "QuantumV105", ResetOnSpawn = false}, TargetUI)
 local BlackBG = Create("Frame", {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 0, 0), Visible = false, ZIndex = 0, Active = true}, UI)
 local Main = Create("Frame", {Size = UDim2.new(0, 300, 0, 180), Position = UDim2.new(0.015, 0, 0.3, 0), BackgroundColor3 = Color3.fromRGB(15, 15, 18), BackgroundTransparency = 0.1, Active = true, Draggable = true, ClipsDescendants = true, ZIndex = 1}, UI)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Main)
@@ -39,7 +39,7 @@ Create("UIStroke", {Color = Color3.fromRGB(255, 0, 85), Thickness = 1.5, Transpa
 
 local Header = Create("Frame", {Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = Color3.fromRGB(22, 22, 26), BorderSizePixel = 0, ZIndex = 1}, Main)
 Create("UICorner", {CornerRadius = UDim.new(0, 6)}, Header)
-Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.4 GHOST", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
+Create("TextLabel", {Size = UDim2.new(1, -110, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = "SUC_CORE :: V10.5 GHOST", TextColor3 = Color3.fromRGB(255, 0, 85), Font = Enum.Font.GothamBlack, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 1}, Header)
 
 local BtnBlack = Create("TextButton", {Size = UDim2.new(0, 95, 0, 20), Position = UDim2.new(1, -100, 0, 4), BackgroundColor3 = Color3.fromRGB(35, 35, 40), Text = "BLACK SCREEN", TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.GothamBold, TextSize = 10, ZIndex = 2}, Header)
 Create("UICorner", {CornerRadius = UDim.new(0, 4)}, BtnBlack)
@@ -85,7 +85,7 @@ t_spawn(function()
         if getgenv().Setting and getgenv().Setting.DeleteMap then
             for _, v in ipairs(S.W:GetDescendants()) do if v:IsA("Part") and v.Transparency < 1 then v.CanCollide = false end end
         end
-        Log("V10.4 GHOST Ready.", Color3.fromRGB(255, 0, 85))
+        Log("V10.5 GHOST Ready.", Color3.fromRGB(255, 0, 85))
     end)
 end)
 
@@ -112,6 +112,7 @@ local function SmartEquipFruit()
 end
 
 local isRetreating = false
+local lowHpCount = {}
 
 t_spawn(function()
     local tmr, lck, last, tJ, keys = {}, {}, tick(), tick(), {Enum.KeyCode.W, Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.D}
@@ -238,12 +239,22 @@ S.RS.Heartbeat:Connect(function()
             local hp = LP.Character.Humanoid.Health
             if hp > 0 then
                 if hp < 4000 then
-                    isRetreating = true
+                    if not isRetreating then
+                        isRetreating = true
+                        lowHpCount[t.Name] = (lowHpCount[t.Name] or 0) + 1
+                        if lowHpCount[t.Name] >= 3 then
+                            Blacklist[t.Name] = tick()
+                            pcall(function() t.Humanoid:Destroy() end)
+                            Log("DANGER: TARGET TOO STRONG! SKIPPED.", Color3.fromRGB(255, 100, 0))
+                            getgenv().CurrentTarget = nil
+                            isRetreating = false
+                        end
+                    end
                 elseif hp >= 7000 then
                     isRetreating = false
                 end
                 
-                if not isRetreating then
+                if not isRetreating and getgenv().CurrentTarget == t then
                     local hrp = LP.Character.HumanoidRootPart
                     hrp.CFrame = t.HumanoidRootPart.CFrame * cf_new(0, 3, 3)
                     hrp.AssemblyLinearVelocity = v3_new(0, 0, 0)
